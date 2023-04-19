@@ -4,18 +4,43 @@ using Telegram.Bots.Extensions.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Newtonsoft.Json.Converters;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using System.Text;
+using System.Threading.Tasks;
+using System;
+using Telegram.Bot.Polling;
 
 namespace VoiceToTextBot
 {
-    internal class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            Console.OutputEncoding = Encoding.Unicode;
+
+            // Объект, отвечающий за постоянный жизненный цикл приложения
+            var host = new HostBuilder()
+                .ConfigureServices((hostContext, services) => ConfigureServices(services)) // Задаем конфигурацию
+                .UseConsoleLifetime() // Позволяет поддерживать приложение активным в консоли
+                .Build(); // Собираем
+
+            Console.WriteLine("Сервис запущен");
+            // Запускаем сервис
+            await host.RunAsync();
+            Console.WriteLine("Сервис остановлен");
+        }
+
+        static void ConfigureServices(IServiceCollection services)
+        {
+            // Регистрируем объект TelegramBotClient c токеном подключения
+            services.AddSingleton<ITelegramBotClient>(provider => new TelegramBotClient("6046274986:AAHPeGMmNbP-SOZB8EuciaXPJzP08wPaS_w"));
+            // Регистрируем постоянно активный сервис бота
+            services.AddHostedService<Bot>();
         }
     }
 
-    class Bot
+    class Bot : BackgroundService
     {
         private ITelegramBotClient _telegramClient;
 
@@ -23,6 +48,16 @@ namespace VoiceToTextBot
         {
             _telegramClient = telegramClient;
         }
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            _telegramClient.StartReceiving(
+                HandleUpdateAsync,
+                HandleErrorAsync,
+                new ReceiverOptions() { AllowedUpdates = { } }, cancellationToken: stoppingToken);
+
+            Console.WriteLine("Бот запущен");
+        } 
 
         async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
@@ -35,7 +70,8 @@ namespace VoiceToTextBot
             // Обрабатывем входящие сообщения из Telegram Bot API
             if (update.Type == UpdateType.Message)
             {
-                await _telegramClient.SendTextMessageAsync(update.Message.Chat.Id, "Вы отправили сообщение", cancellationToken: cancellationToken);
+                Console.WriteLine($"Получено сообщение {update.Message.Text}");
+                await _telegramClient.SendTextMessageAsync(update.Message.Chat.Id, $"Вы отправили сообщение {update.Message.Text}", cancellationToken: cancellationToken);
                 return;
             }
 
