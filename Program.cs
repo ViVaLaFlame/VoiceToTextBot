@@ -54,13 +54,17 @@ namespace VoiceToTextBot
             services.AddSingleton<IStorage, MemoryStorage>();
             // Регистрируем постоянно активный сервис бота
             services.AddHostedService<Bot>();
+            services.AddSingleton<IFileHandler, AudioFileHandler>();
         }
 
         static AppSettings BuildAppSettings()
         {
             return new AppSettings()
             {
-                BotToken = "6046274986:AAHPeGMmNbP-SOZB8EuciaXPJzP08wPaS_w"
+                DownloadsFolder = "C:\\C# projects\\DownloadAudioTBOT",
+                BotToken = "6046274986:AAHPeGMmNbP-SOZB8EuciaXPJzP08wPaS_w",
+                AudioFileName = "audio",
+                InputAudioFormat = "ogg",
             };
 
         }

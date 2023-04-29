@@ -33,7 +33,7 @@ namespace VoiceToTextBot.Controllers
             string languageText = callbackQuery.Data switch
             {
                 "ru" => " Русский",
-                "en" => " Ангдийский",
+                "en" => " Английский",
                 _ => String.Empty
             };
 
