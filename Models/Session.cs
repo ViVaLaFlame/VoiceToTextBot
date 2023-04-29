@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace VoiceToTextBot.Models
 {
-    internal class Class1
+    public class Session
     {
+        public string LanguageCode { get; set; }
     }
 }

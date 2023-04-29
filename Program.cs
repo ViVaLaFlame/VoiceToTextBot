@@ -11,7 +11,8 @@ using System.Threading.Tasks;
 using System;
 using Telegram.Bot.Polling;
 using VoiceToTextBot.Controllers;
-
+using VoiceToTextBot.Services;
+using VoiceToTextBot.Configurations;
 
 namespace VoiceToTextBot
 {
@@ -35,6 +36,11 @@ namespace VoiceToTextBot
 
         static void ConfigureServices(IServiceCollection services)
         {
+            AppSettings appSettings = BuildAppSettings();
+            services.AddSingleton(BuildAppSettings());
+
+            services.AddSingleton<IStorage, MemoryStorage>();
+
             // Подключаем контроллеры сообщений и кнопок
             services.AddTransient<DefaultMessageController>();
             services.AddTransient<VoiceMessageController>();
@@ -43,9 +49,20 @@ namespace VoiceToTextBot
 
 
             // Регистрируем объект TelegramBotClient c токеном подключения
-            services.AddSingleton<ITelegramBotClient>(provider => new TelegramBotClient("6046274986:AAHPeGMmNbP-SOZB8EuciaXPJzP08wPaS_w"));
+            services.AddSingleton<ITelegramBotClient>(provider => new TelegramBotClient(appSettings.BotToken));
+            // Доступ к хранилищу сессий
+            services.AddSingleton<IStorage, MemoryStorage>();
             // Регистрируем постоянно активный сервис бота
             services.AddHostedService<Bot>();
+        }
+
+        static AppSettings BuildAppSettings()
+        {
+            return new AppSettings()
+            {
+                BotToken = "6046274986:AAHPeGMmNbP-SOZB8EuciaXPJzP08wPaS_w"
+            };
+
         }
     }
 

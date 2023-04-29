@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace VoiceToTextBot.Configurations
 {
-    internal class Class1
+    public class AppSettings
     {
+        public string BotToken { get; set; }
     }
 }
