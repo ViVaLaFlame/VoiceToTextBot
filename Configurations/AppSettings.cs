@@ -25,5 +25,10 @@ namespace VoiceToTextBot.Configurations
         /// Формат аудио при загрузке
         /// </summary>
         public string InputAudioFormat { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+
+
     }
 }
